@@ -6,8 +6,8 @@ A YOLO11 object-detection project for identifying my stuffed animals, Bobby and 
 
 ## How I built it
 
-1. **Took the photos.** I took pictures of Bobby and Ted in different positions and places so the model wouldn't just memorize one background.
-2. **Labelled them.** I used [LabelImg](https://github.com/HumanSignal/labelImg) to draw a box around each stuffed animal and mark it as `Bobby` or `Ted`.
+1. **Creaated the dataset by capturing images** I took pictures of Bobby and Ted in different positions and places
+2. **Labeled the dataset.** I used [LabelImg](https://github.com/HumanSignal/labelImg) to draw a box around each stuffed animal and mark it as `Bobby` or `Ted`.
 3. **Exported YOLO labels.** LabelImg saves one `.txt` file per image, with one line per box:
 
    ```text
