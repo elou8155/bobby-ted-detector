@@ -1,0 +1,9 @@
+path: "C:/Users/navjot.singh/Documents/Emily/stuffed_animals" # dataset root dir
+train: "C:/Users/navjot.singh/Documents/Emily/stuffed_animals/images/train" # train images dir
+val: "C:/Users/navjot.singh/Documents/Emily/stuffed_animals/images/val" # val images dir
+
+# Classes 
+names:
+    0: Bobby
+    1: Ted
+  

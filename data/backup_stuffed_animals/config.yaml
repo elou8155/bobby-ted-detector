@@ -1,0 +1,9 @@
+path: "C:/Users/jimmm/Desktop/machine learning project/data/stuffed_animals"# dataset root dir
+train: "C:/Users/jimmm/Desktop/machine learning project/data/stuffed_animals/images/train"# train images (relative to 'path') 4 images
+val: "C:/Users/jimmm/Desktop/machine learning project/data/stuffed_animals/images/val" # val images (relative to 'path') 4 images
+
+# Classes 
+names:
+    0: Bobby
+    1: Ted
+  
