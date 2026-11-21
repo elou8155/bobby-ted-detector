@@ -2,67 +2,44 @@
 
 A YOLO11 object-detection project for identifying my stuffed animals, Bobby and Ted.
 
-## Project process
+![Example prediction](data/Emily/result.jpg)
 
-I collected photographs of both stuffed animals and used them to build a custom image dataset.
+## How I built it
 
-1. **Captured the images:** I took roughly 100 pictures of Bobby and Ted in a variety of positions and surroundings.
-2. **Labelled the objects:** I used [LabelImg](https://github.com/HumanSignal/labelImg) to draw a rectangular bounding box around each stuffed animal.
-3. **Named the classes:** I assigned every box to either `Bobby` or `Ted`.
-4. **Exported YOLO labels:** LabelImg saved each image's annotation as a `.txt` file in YOLO format:
+1. **Took the photos.** I took pictures of Bobby and Ted in different positions and places so the model wouldn't just memorize one background.
+2. **Labelled them.** I used [LabelImg](https://github.com/HumanSignal/labelImg) to draw a box around each stuffed animal and mark it as `Bobby` or `Ted`.
+3. **Exported YOLO labels.** LabelImg saves one `.txt` file per image, with one line per box:
 
    ```text
    class_id center_x center_y width height
    ```
+  
+  For example:
 
-   The coordinates are normalized so they work at different image sizes.
-5. **Split the dataset:** I divided the labelled images into training and validation sets.
-6. **Fine-tuned YOLO11:** I started with pretrained `yolo11n.pt` weights and fine-tuned the model on the two classes.
+   ```text
+   0 0.254960 0.435268 0.210979 0.200893
+   1 0.664187 0.447917 0.407077 0.316964
+   ```
 
-The repository's active dataset contains 60 training images and 8 validation images. The labels contain 51 Bobby instances and 49 Ted instances.
+   That's one Bobby (class 0) and one Ted (class 1) in the same photo.
 
-## Label format
+4. **Split the data.** 60 images for training and 8 for validation. Across the labels there are 51 Bobby boxes and 49 Ted boxes, so the classes are pretty balanced.
+5. **Fine-tuned YOLO11.** I started from the pretrained `yolo11n.pt` (the smallest YOLO11 model) and trained it on my two classes with [Ultralytics](https://docs.ultralytics.com/).
 
-An annotation such as:
+## Results
 
-```text
-0 0.254960 0.435268 0.210979 0.200893
-1 0.664187 0.447917 0.407077 0.316964
-```
+My final run (`train5`) trained for 50 epochs at 640x640 with a batch size of 16. On the validation set it got:
 
-means that the image contains:
+| Metric | Score |
+|---|---|
+| mAP50 | ~0.995 |
+| mAP50-95 | ~0.917 |
 
-- One `Bobby` box (`class 0`)
-- One `Ted` box (`class 1`)
+Due to a limited number of validation images, the scores may be inflated, a larger dataset is needed to make absolute conclusions.
 
-The dataset configuration is [`data/Emily/stuffed_animals/config.yaml`](data/Emily/stuffed_animals/config.yaml).
+## Try it yourself
 
-```yaml
-names:
-  0: Bobby
-  1: Ted
-```
-
-## Training
-
-The model was trained with Ultralytics YOLO:
-
-- Base model: YOLO11 nano (`yolo11n`)
-- Image size: 640 x 640
-- Epochs: 50
-- Batch size: 16
-- Task: object detection
-
-The training configuration for the final recorded run is available at [`data/Emily/runs/detect/train5/args.yaml`](data/Emily/runs/detect/train5/args.yaml).
-
-The trained weights are stored in [`data/Emily/runs/detect/train5/weights/`](data/Emily/runs/detect/train5/weights/):
-
-- `best.pt` — checkpoint with the strongest recorded validation performance
-- `last.pt` — checkpoint from the final epoch
-
-The final run reached about 0.995 mAP50 and 0.918 mAP50-95 on the validation set. Because the validation set is small, these values are not as statistically reliable as results from a larger and more diverse dataset.
-
-## Setup
+Set up a virtual environment and install Ultralytics:
 
 ```bash
 python3 -m venv .venv
@@ -70,26 +47,38 @@ source .venv/bin/activate
 python -m pip install --upgrade pip ultralytics
 ```
 
-## Run the trained model
+Then run the trained model on a photo:
 
 ```bash
 python3 - <<'PY'
 from ultralytics import YOLO
 
 model = YOLO("data/Emily/runs/detect/train5/weights/best.pt")
-results = model.predict(
-    source="data/Emily/IMG_0942.jpg",
-    save=True,
-)
-
-print("Results:", results)
+results = model.predict(source="data/Emily/IMG_0942.jpg", save=True)
+print(results)
 PY
 ```
 
-## Dataset
+The annotated image gets saved under `runs/detect/predict/`.
 
-The dataset YAML is [`data/Emily/stuffed_animals/config.yaml`](data/Emily/stuffed_animals/config.yaml).
-It contains two classes:
+`best.pt` is the checkpoint with the best validation score, and `last.pt` is the one from the final epoch. Both are in `data/Emily/runs/detect/train5/weights/`.
 
-- `Bobby`
-- `Ted`
+## Training it again
+
+The dataset config is [`data/Emily/stuffed_animals/config.yaml`](data/Emily/stuffed_animals/config.yaml) and it defines the two classes:
+
+```yaml
+names:
+  0: Bobby
+  1: Ted
+```
+
+The current paths are local and won't work on another machine as is. Change them to the real location of the dataset before running anything, then:
+
+```bash
+python3 data/Emily/stuffed_animals/train.py
+```
+
+## Future Improvements 
+- Add a lot more photos to increase the dataset, especially with different lighting, angles and backgrounds
+- Make the validation set bigger so the scores mean more
